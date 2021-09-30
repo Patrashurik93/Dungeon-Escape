@@ -26,6 +26,7 @@ public abstract class Enemy : MonoBehaviour
 
     private void Start()
     {
+    
         Init();
     }
 
