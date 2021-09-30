@@ -9,6 +9,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected float speed;
     [SerializeField] protected int gems;
     [SerializeField] protected Transform pointA, pointB;
+    
     protected Vector3 currentTarget;
     protected Animator anim;
     protected SpriteRenderer sprite;
