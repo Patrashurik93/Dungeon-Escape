@@ -4,24 +4,30 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    public GameObject diamondPrefab;
-    
     [SerializeField] protected int health;
     [SerializeField] protected float speed;
     [SerializeField] protected int gems;
     [SerializeField] protected Transform pointA, pointB;
-    protected Vector3 currentTarget;
-    protected Animator anim;
-    protected SpriteRenderer sprite;   
+    [SerializeField] protected Player Player;
+
+    public GameObject diamondPrefab;
+
+    protected Vector3 CurrentTarget;
+    protected Animator Anim;
+    protected SpriteRenderer Sprite;     
     protected bool isHit = false;
-    protected Player player;    
     protected bool isDead = false;
+
+    private string _idle = "Idle";
+    private string _inCombat = "InCombat";
+    private float _minDistanceToAttack = 2.0f;
+
 
     public virtual void Init()
     {    
-        anim = GetComponentInChildren<Animator>();
-        sprite = GetComponentInChildren<SpriteRenderer>();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        Anim = GetComponentInChildren<Animator>();
+        Sprite = GetComponentInChildren<SpriteRenderer>();
+        Player = GetComponent<Player>();
     }
     
     private void Start()
@@ -31,60 +37,63 @@ public abstract class Enemy : MonoBehaviour
 
     public virtual void Update()
     {
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Idle") && anim.GetBool("InCombat") == false)
+        if (Anim.GetCurrentAnimatorStateInfo(0).IsName(_idle) && Anim.GetBool(_inCombat) == false)
         {
             return;
         }
         
         if(isDead == false)
-        Movement();
+        {
+            Movement();
+        }
+       
     }
 
     public virtual void Movement()
     {
     
-        if (currentTarget == pointA.position)
+        if (CurrentTarget == pointA.position)
         {
-            sprite.flipX = true;
+            Sprite.flipX = true;
         }
         else
         {
-            sprite.flipX = false;
+            Sprite.flipX = false;
         }
 
         if (transform.position == pointA.position)
         {
-            currentTarget = pointB.position;
-            anim.SetTrigger("Idle");
+            CurrentTarget = pointB.position;
+            Anim.SetTrigger(_idle);
         }
         else if (transform.position == pointB.position)
         {
-            currentTarget = pointA.position;
-            anim.SetTrigger("Idle");
+            CurrentTarget = pointA.position;
+            Anim.SetTrigger(_idle);
         }
 
         if (isHit == false)
         {
-            transform.position = Vector3.MoveTowards(transform.position, currentTarget, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, CurrentTarget, speed * Time.deltaTime);
         }
 
-        float distance = Vector3.Distance(transform.localPosition, player.transform.localPosition);
-        //Debug.Log("Distance: " + distance);
-        if (distance > 2.0f)
+        float distance = Vector3.Distance(transform.localPosition, Player.transform.localPosition);
+
+        if (distance > _minDistanceToAttack)
         {
             isHit = false;
-            anim.SetBool("InCombat", false);
+            Anim.SetBool(_inCombat, false);
         }
 
-        Vector3 direction = player.transform.localPosition - transform.localPosition;
+        Vector3 direction = Player.transform.localPosition - transform.localPosition;
 
-        if (direction.x > 0 && anim.GetBool("InCombat") == true)
+        if (direction.x > 0 && Anim.GetBool(_inCombat) == true)
         {
-            sprite.flipX = false;
+            Sprite.flipX = false;
         }
-        else if (direction.x < 0 && anim.GetBool("InCombat") == true)
+        else if (direction.x < 0 && Anim.GetBool(_inCombat) == true)
         {
-            sprite.flipX = true;
+            Sprite.flipX = true;
         }
     }
 }
